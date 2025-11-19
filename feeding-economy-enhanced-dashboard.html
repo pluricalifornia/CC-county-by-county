@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feeding the Economy: Enhanced Interactive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c5f2d;
+            --secondary: #97bc62;
+            --accent: #ff6b35;
+            --warning: #ffc93c;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #1a1a1a;
+            --gray: #6c757d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        /* Hero Section with Animated Background */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a4d1a 100%);
+            color: white;
+            padding: 100px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0.15;
+            animation: float-particle 15s infinite ease-in-out;
+        }
+
+        @keyframes float-particle {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0.15;
+            }
+            50% { 
+                transform: translate(50px, -50px) rotate(180deg);
+                opacity: 0.3;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* Interactive County Map */
+        .interactive-county-map {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 30px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .county-map-item {
+            background: white;
+            border: 3px solid var(--secondary);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .county-map-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .county-map-item:hover::before {
+            left: 100%;
+        }
+
+        .county-map-item:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .county-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .county-map-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .county-map-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .county-map-item:hover .county-map-value {
+            color: white;
+        }
+
+        /* Comparison Tool */
+        .comparison-tool {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .comparison-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .selector-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .selector-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .selector-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .selector-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+        }
+
+        .comparison-result {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .comparison-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+            border-radius: 12px;
+            padding: 30px;
+            border-left: 5px solid var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .comparison-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .comparison-metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Data Explorer */
+        .data-explorer {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .explorer-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .explorer-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .explorer-btn:hover,
+        .explorer-btn.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .data-point {
+            background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .data-point:hover {
+            border-color: var(--secondary);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-point-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .data-point-label {
+            font-size: 0.9em;
+            color: var(--gray);
+        }
+
+        .data-point-change {
+            font-size: 0.9em;
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .change-positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .change-negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Animated Infographic */
+        .infographic {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .infographic-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+            border-radius: 12px;
+        }
+
+        .infographic-icon {
+            font-size: 4em;
+            flex-shrink: 0;
+        }
+
+        .infographic-content {
+            flex: 1;
+        }
+
+        .infographic-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .infographic-text {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .infographic-stat {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 10px;
+        }
+
+        /* Interactive Timeline */
+        .interactive-timeline {
+            position: relative;
+            padding: 50px 0;
+            margin: 40px 0;
+        }
+
+        .timeline-slider {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .timeline-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .timeline-marker {
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.3s;
+        }
+
+        .timeline-marker:hover {
+            background: rgba(44, 95, 45, 0.1);
+            border-radius: 8px;
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2em;
+        }
+
+        .timeline-value {
+            margin-top: 10px;
+            color: var(--gray);
+        }
+
+        /* Impact Calculator */
+        .impact-calculator {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .calculator-input {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 12px;
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(44, 95, 45, 0.1);
+        }
+
+        .calculate-btn {
+            padding: 15px 40px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            align-self: flex-start;
+        }
+
+        .calculate-btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .calculator-result {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+            border-radius: 12px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .result-item {
+            text-align: center;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .result-label {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2em; }
+            .hero-stats { flex-direction: column; gap: 20px; }
+            .interactive-county-map { grid-template-columns: 1fr; }
+            .comparison-result { grid-template-columns: 1fr; }
+            .infographic-row { flex-direction: column; text-align: center; }
+        }
+
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #e9ecef;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Scroll Progress Indicator */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            z-index: 1000;
+            transition: width 0.1s;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        /* Key Findings Boxes */
+        .key-findings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .finding-box {
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .finding-box:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .finding-critical {
+            background: #fff5f5;
+            border-color: var(--danger);
+        }
+
+        .finding-important {
+            background: #fffbf0;
+            border-color: var(--warning);
+        }
+
+        .finding-info {
+            background: #f0f8ff;
+            border-color: #0066cc;
+        }
+
+        .finding-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .finding-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .finding-text {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader"></div>
+        <div class="loading-text">Loading Economic Impact Dashboard...</div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-particles">
+            <span class="particle" style="left: 10%; top: 20%; animation-delay: 0s;">🌾</span>
+            <span class="particle" style="left: 80%; top: 30%; animation-delay: 2s;">🥬</span>
+            <span class="particle" style="left: 20%; top: 60%; animation-delay: 4s;">🍓</span>
+            <span class="particle" style="left: 70%; top: 70%; animation-delay: 6s;">🥑</span>
+            <span class="particle" style="left: 40%; top: 80%; animation-delay: 8s;">🍷</span>
+            <span class="particle" style="left: 90%; top: 50%; animation-delay: 10s;">🍇</span>
+        </div>
+        <div class="hero-content">
+            <h1>🌾 Feeding the Economy</h1>
+            <p style="font-size: 1.5em; margin: 20px 0;">California Central Coast Food Industry Impact</p>
+            <p style="font-size: 1.1em; opacity: 0.9; max-width: 800px; margin: 0 auto;">
+                An Interactive Dashboard Exploring $44 Billion in Economic Activity Across Six Counties
+            </p>
+            
+            <div class="hero-stats">
+                <div class="hero-stat" style="animation-delay: 0.2s;">
+                    <div class="hero-stat-number" id="heroGDP">$0B</div>
+                    <div class="hero-stat-label">GDP Contribution</div>
+                </div>
+                <div class="hero-stat" style="animation-delay: 0.4s;">
+                    <div class="hero-stat-number" id="heroJobs">0</div>
+                    <div class="hero-stat-label">Total Jobs</div>
+                </div>
+                <div class="hero-stat" style="animation-delay: 0.6s;">
+                    <div class="hero-stat-number" id="heroOutput">$0B</div>
+                    <div class="hero-stat-label">Annual Output</div>
+                </div>
+                <div class="hero-stat" style="animation-delay: 0.8s;">
+                    <div class="hero-stat-number" id="heroTax">$0B</div>
+                    <div class="hero-stat-label">Tax Revenue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Interactive County Map -->
+        <div class="section">
+            <h2 class="section-title">Interactive County Explorer</h2>
+            <p style="text-align: center; color: var(--gray); margin-bottom: 30px;">
+                Click on any county to explore detailed economic impact data
+            </p>
+            
+            <div class="interactive-county-map">
+                <div class="county-map-item" onclick="selectCounty('monterey')">
+                    <span class="county-icon">🥬</span>
+                    <div class="county-map-name">Monterey</div>
+                    <div class="county-map-value">$4.42B</div>
+                    <small>Production Value</small>
+                </div>
+                
+                <div class="county-map-item" onclick="selectCounty('santa-barbara')">
+                    <span class="county-icon">🍓</span>
+                    <div class="county-map-name">Santa Barbara</div>
+                    <div class="county-map-value">$1.77B</div>
+                    <small>Production Value</small>
+                </div>
+                
+                <div class="county-map-item" onclick="selectCounty('ventura')">
+                    <span class="county-icon">🥑</span>
+                    <div class="county-map-name">Ventura</div>
+                    <div class="county-map-value">$1.78B</div>
+                    <small>Production Value</small>
+                </div>
+                
+                <div class="county-map-item" onclick="selectCounty('san-luis')">
+                    <span class="county-icon">🍷</span>
+                    <div class="county-map-name">San Luis Obispo</div>
+                    <div class="county-map-value">$943M</div>
+                    <small>Production Value</small>
+                </div>
+                
+                <div class="county-map-item" onclick="selectCounty('santa-cruz')">
+                    <span class="county-icon">🫐</span>
+                    <div class="county-map-name">Santa Cruz</div>
+                    <div class="county-map-value">$611M</div>
+                    <small>Production Value</small>
+                </div>
+                
+                <div class="county-map-item" onclick="selectCounty('san-benito')">
+                    <span class="county-icon">🥗</span>
+                    <div class="county-map-name">San Benito</div>
+                    <div class="county-map-value">$311M</div>
+                    <small>Production Value</small>
+                </div>
+            </div>
+            
+            <div id="countyDetails" style="display: none; margin-top: 40px;">
+                <h3 style="color: var(--primary); margin-bottom: 20px;" id="selectedCountyName"></h3>
+                <div class="data-grid" id="countyDataGrid"></div>
+            </div>
+        </div>
+
+        <!-- Key Findings -->
+        <div class="section">
+            <h2 class="section-title">Critical Findings</h2>
+            <div class="key-findings">
+                <div class="finding-box finding-critical">
+                    <div class="finding-icon">🚨</div>
+                    <div class="finding-title">Food Insecurity Crisis</div>
+                    <div class="finding-text">
+                        71,528 households unable to access $271M in food assistance despite regional abundance. 
+                        62% increase in food stamp participation since 2019.
+                    </div>
+                </div>
+                
+                <div class="finding-box finding-critical">
+                    <div class="finding-icon">💰</div>
+                    <div class="finding-title">Wage Inequality</div>
+                    <div class="finding-text">
+                        100% wage gap between U.S.-born ($31/hr) and undocumented workers ($14/hr) 
+                        despite $159B statewide contribution.
+                    </div>
+                </div>
+                
+                <div class="finding-box finding-important">
+                    <div class="finding-icon">🌾</div>
+                    <div class="finding-title">Immigrant Workforce</div>
+                    <div class="finding-text">
+                        2.44M undocumented immigrants in California contribute 42% of agricultural GDP. 
+                        Only 15.5% work directly in agriculture.
+                    </div>
+                </div>
+                
+                <div class="finding-box finding-important">
+                    <div class="finding-icon">☠️</div>
+                    <div class="finding-title">Pesticide Use Rising</div>
+                    <div class="finding-text">
+                        176-215M pounds applied annually, increasing since 2010 with inadequate safety evaluations.
+                    </div>
+                </div>
+                
+                <div class="finding-box finding-info">
+                    <div class="finding-icon">📈</div>
+                    <div class="finding-title">Economic Multiplier</div>
+                    <div class="finding-text">
+                        Every $1 of food industry activity generates $1.42 in total output. 
+                        Every 10 direct jobs create 3.3 additional jobs.
+                    </div>
+                </div>
+                
+                <div class="finding-box finding-info">
+                    <div class="finding-icon">🌱</div>
+                    <div class="finding-title">Organic Plateau</div>
+                    <div class="finding-text">
+                        Organic farming value share flat at 6.3% since 2017. 
+                        Major crops like almonds only 2% organic.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- County Comparison Tool -->
+        <div class="comparison-tool">
+            <h2 class="section-title">County Comparison Tool</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">
+                Compare economic and social metrics across any two counties
+            </p>
+            
+            <div class="comparison-selector">
+                <div class="selector-group">
+                    <label>Select First County</label>
+                    <select id="county1Select" onchange="updateComparison()">
+                        <option value="monterey">Monterey County</option>
+                        <option value="santa-barbara">Santa Barbara County</option>
+                        <option value="ventura">Ventura County</option>
+                        <option value="san-luis">San Luis Obispo County</option>
+                        <option value="santa-cruz">Santa Cruz County</option>
+                        <option value="san-benito">San Benito County</option>
+                    </select>
+                </div>
+                
+                <div class="selector-group">
+                    <label>Select Second County</label>
+                    <select id="county2Select" onchange="updateComparison()">
+                        <option value="monterey">Monterey County</option>
+                        <option value="santa-barbara" selected>Santa Barbara County</option>
+                        <option value="ventura">Ventura County</option>
+                        <option value="san-luis">San Luis Obispo County</option>
+                        <option value="santa-cruz">Santa Cruz County</option>
+                        <option value="san-benito">San Benito County</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="comparison-result" id="comparisonResult">
+                <!-- Comparison data will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Interactive Timeline -->
+        <div class="section">
+            <h2 class="section-title">Food Security Timeline (2014-2024)</h2>
+            <p style="color: var(--gray); margin-bottom: 30px; text-align: center;">
+                Track the dramatic rise in food insecurity across the Central Coast
+            </p>
+            
+            <div class="interactive-timeline">
+                <div class="timeline-slider" onclick="selectYear(event)">
+                    <div class="timeline-progress" id="timelineProgress" style="width: 100%;"></div>
+                </div>
+                
+                <div class="timeline-markers">
+                    <div class="timeline-marker" onclick="jumpToYear(2014)">
+                        <div class="timeline-year">2014</div>
+                        <div class="timeline-value">97,958</div>
+                        <small>households</small>
+                    </div>
+                    <div class="timeline-marker" onclick="jumpToYear(2019)">
+                        <div class="timeline-year">2019</div>
+                        <div class="timeline-value">90,902</div>
+                        <small>households</small>
+                    </div>
+                    <div class="timeline-marker" onclick="jumpToYear(2024)">
+                        <div class="timeline-year">2024</div>
+                        <div class="timeline-value" style="color: var(--danger); font-weight: bold;">147,584</div>
+                        <small>households</small>
+                        <div style="margin-top: 5px;">
+                            <span style="background: var(--danger); color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em;">+62%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Economic Impact Calculator -->
+        <div class="impact-calculator">
+            <h2 class="section-title">Economic Impact Calculator</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">
+                Calculate the multiplier effects of food industry investments
+            </p>
+            
+            <div class="calculator-input">
+                <div class="input-group">
+                    <label>Select County</label>
+                    <select id="calcCounty">
+                        <option value="regional">All Central Coast (Regional)</option>
+                        <option value="monterey">Monterey County</option>
+                        <option value="santa-barbara">Santa Barbara County</option>
+                        <option value="ventura">Ventura County</option>
+                        <option value="san-luis">San Luis Obispo County</option>
+                        <option value="santa-cruz">Santa Cruz County</option>
+                        <option value="san-benito">San Benito County</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Direct Investment Amount ($)</label>
+                    <input type="number" id="investmentAmount" value="1000000" step="100000" min="0">
+                </div>
+                
+                <div class="input-group">
+                    <label>Number of Direct Jobs Created</label>
+                    <input type="number" id="jobsCreated" value="10" step="1" min="0">
+                </div>
+                
+                <button class="calculate-btn" onclick="calculateImpact()">Calculate Total Impact</button>
+            </div>
+            
+            <div class="calculator-result" id="calcResult" style="display: none;">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Animated Infographic -->
+        <div class="infographic">
+            <h2 class="section-title">The Paradox of Abundance</h2>
+            
+            <div class="infographic-row">
+                <div class="infographic-icon">🌾</div>
+                <div class="infographic-content">
+                    <div class="infographic-title">We Produce Abundance</div>
+                    <div class="infographic-text">
+                        The Central Coast produces $9.3 billion in agricultural commodities annually,
+                        earning the title "Salad Bowl of the World" and feeding millions nationwide.
+                    </div>
+                    <div class="infographic-stat">$9.3B Annual Production</div>
+                </div>
+            </div>
+            
+            <div class="infographic-row">
+                <div class="infographic-icon">🍽️</div>
+                <div class="infographic-content">
+                    <div class="infographic-title">Yet Face Scarcity</div>
+                    <div class="infographic-text">
+                        Despite this abundance, 71,528 households cannot access entitled food assistance,
+                        with $271 million in benefits going unclaimed due to system failures.
+                    </div>
+                    <div class="infographic-stat">$271M Unclaimed Benefits</div>
+                </div>
+            </div>
+            
+            <div class="infographic-row">
+                <div class="infographic-icon">👨‍🌾</div>
+                <div class="infographic-content">
+                    <div class="infographic-title">Created by Immigrant Labor</div>
+                    <div class="infographic-text">
+                        Undocumented immigrants contribute $159 billion statewide and represent 42% of 
+                        agricultural GDP, yet earn half the wages of U.S.-born workers.
+                    </div>
+                    <div class="infographic-stat">100% Wage Gap</div>
+                </div>
+            </div>
+            
+            <div class="infographic-row">
+                <div class="infographic-icon">☠️</div>
+                <div class="infographic-content">
+                    <div class="infographic-title">While Exposing Workers to Harm</div>
+                    <div class="infographic-text">
+                        Over 200 million pounds of pesticides applied annually with inadequate safety
+                        evaluations, disproportionately affecting agricultural workers and communities.
+                    </div>
+                    <div class="infographic-stat">215M lbs Pesticides</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Explorer -->
+        <div class="data-explorer">
+            <h2 class="section-title">Regional Data Explorer</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">
+                Explore different data dimensions across the region
+            </p>
+            
+            <div class="explorer-controls">
+                <button class="explorer-btn active" onclick="showExplorerData('economic')">Economic Impact</button>
+                <button class="explorer-btn" onclick="showExplorerData('employment')">Employment</button>
+                <button class="explorer-btn" onclick="showExplorerData('food-security')">Food Security</button>
+                <button class="explorer-btn" onclick="showExplorerData('wages')">Wages</button>
+                <button class="explorer-btn" onclick="showExplorerData('environment')">Environment</button>
+            </div>
+            
+            <div class="data-grid" id="explorerData">
+                <!-- Data will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <div style="background: var(--dark); color: white; text-align: center; padding: 60px 20px; margin-top: 60px;">
+        <h2 style="margin-bottom: 20px; font-size: 2em;">Take Action</h2>
+        <p style="max-width: 800px; margin: 0 auto 40px; font-size: 1.2em; line-height: 1.8;">
+            The data is clear: our food industry generates massive economic value while leaving those who 
+            feed us struggling to feed themselves. Change requires comprehensive policy action on immigration 
+            reform, food assistance systems, worker protections, and environmental standards.
+        </p>
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.2);">
+            <p style="font-size: 0.9em; opacity: 0.7;">
+                Data Source: "Feeding the Economy: Report of Food Industry in Central Coast"<br>
+                IMPLAN Economic Modeling • 2022 Data • Six County Analysis<br>
+                Interactive Dashboard Created 2025
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // County Data
+        const countyData = {
+            'monterey': {
+                name: 'Monterey County',
+                icon: '🥬',
+                production: 4.42,
+                workers: 27600,
+                foodService: 18820,
+                wage: 17.78,
+                foodServiceWage: 17.22,
+                unclaimed: 25.6,
+                households: 6741,
+                deserts: 3.23,
+                description: 'The Salad Bowl of the World',
+                topCrop: 'Lettuce ($1.38B)'
+            },
+            'santa-barbara': {
+                name: 'Santa Barbara County',
+                icon: '🍓',
+                production: 1.77,
+                workers: 13560,
+                foodService: 23340,
+                wage: 17.45,
+                foodServiceWage: 17.01,
+                unclaimed: 90.8,
+                households: 23945,
+                deserts: 4.49,
+                description: 'Strawberry Capital',
+                topCrop: 'Strawberries ($811M)'
+            },
+            'ventura': {
+                name: 'Ventura County',
+                icon: '🥑',
+                production: 1.78,
+                workers: 5370,
+                foodService: 33940,
+                wage: 16.79,
+                foodServiceWage: 16.74,
+                unclaimed: 43.8,
+                households: 11658,
+                deserts: 5.20,
+                description: 'Diverse High-Value Agriculture',
+                topCrop: 'Strawberries ($663M)'
+            },
+            'san-luis': {
+                name: 'San Luis Obispo County',
+                icon: '🍷',
+                production: 0.943,
+                workers: 3650,
+                foodService: 15380,
+                wage: 18.10,
+                foodServiceWage: 16.81,
+                unclaimed: 102.9,
+                households: 27129,
+                deserts: 1.89,
+                description: 'Wine & Agricultural Diversity',
+                topCrop: 'Berries/Grapes'
+            },
+            'santa-cruz': {
+                name: 'Santa Cruz County',
+                icon: '🫐',
+                production: 0.611,
+                workers: 660,
+                foodService: 11460,
+                wage: 17.19,
+                foodServiceWage: 17.17,
+                unclaimed: 6.0,
+                households: 1599,
+                deserts: 13.46,
+                description: 'Specialty Berries & Tourism',
+                topCrop: 'Specialty Berries'
+            },
+            'san-benito': {
+                name: 'San Benito County',
+                icon: '🥗',
+                production: 0.311,
+                workers: 1610,
+                foodService: 0,
+                wage: 20.19,
+                foodServiceWage: 19.25,
+                unclaimed: 2.2,
+                households: 575,
+                deserts: 36.36,
+                description: 'Small-Scale with Bay Area Influence',
+                topCrop: 'Vegetables/Lettuce'
+            }
+        };
+
+        // Animated number counter
+        function animateNumber(element, target, duration = 2000, prefix = '', suffix = '') {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                
+                let displayValue = current;
+                if (target >= 1000000) {
+                    displayValue = (current / 1000000000).toFixed(1) + 'B';
+                } else if (target >= 1000) {
+                    displayValue = Math.round(current).toLocaleString();
+                } else {
+                    displayValue = current.toFixed(1);
+                }
+                
+                element.textContent = prefix + displayValue + suffix;
+            }, 16);
+        }
+
+        // Initialize hero numbers
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                animateNumber(document.getElementById('heroGDP'), 24.1, 2000, '$', 'B');
+                animateNumber(document.getElementById('heroJobs'), 273917, 2000);
+                animateNumber(document.getElementById('heroOutput'), 43.7, 2000, '$', 'B');
+                animateNumber(document.getElementById('heroTax'), 5.75, 2000, '$', 'B');
+                
+                // Hide loading overlay
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }, 500);
+        });
+
+        // Select County
+        function selectCounty(countyId) {
+            const county = countyData[countyId];
+            const details = document.getElementById('countyDetails');
+            const nameEl = document.getElementById('selectedCountyName');
+            const gridEl = document.getElementById('countyDataGrid');
+            
+            nameEl.innerHTML = `${county.icon} ${county.name} <small style="color: var(--gray); font-size: 0.7em; font-weight: normal;">${county.description}</small>`;
+            
+            gridEl.innerHTML = `
+                <div class="data-point">
+                    <div class="data-point-label">Agricultural Production</div>
+                    <div class="data-point-value">$${county.production}B</div>
+                    <div class="data-point-label">${county.topCrop}</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-point-label">Farm Workers</div>
+                    <div class="data-point-value">${county.workers.toLocaleString()}</div>
+                    <div class="data-point-label">$${county.wage}/hr median</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-point-label">Food Service Workers</div>
+                    <div class="data-point-value">${county.foodService ? county.foodService.toLocaleString() : 'N/A'}</div>
+                    <div class="data-point-label">$${county.foodServiceWage}/hr median</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-point-label">Unclaimed Benefits</div>
+                    <div class="data-point-value" style="color: var(--danger);">$${county.unclaimed}M</div>
+                    <div class="data-point-label">${county.households.toLocaleString()} households</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-point-label">Food Deserts</div>
+                    <div class="data-point-value">${county.deserts}%</div>
+                    <div class="data-point-label">Low-income, low-access</div>
+                </div>
+            `;
+            
+            details.style.display = 'block';
+            details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Update Comparison
+        function updateComparison() {
+            const county1Id = document.getElementById('county1Select').value;
+            const county2Id = document.getElementById('county2Select').value;
+            const county1 = countyData[county1Id];
+            const county2 = countyData[county2Id];
+            const resultEl = document.getElementById('comparisonResult');
+            
+            resultEl.innerHTML = `
+                <div class="comparison-card">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">${county1.icon} ${county1.name}</h3>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Production Value</span>
+                        <span class="metric-value">$${county1.production}B</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Farm Workers</span>
+                        <span class="metric-value">${county1.workers.toLocaleString()}</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Agricultural Wage</span>
+                        <span class="metric-value">$${county1.wage}/hr</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Food Service Wage</span>
+                        <span class="metric-value">$${county1.foodServiceWage}/hr</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Unclaimed Benefits</span>
+                        <span class="metric-value" style="color: var(--danger);">$${county1.unclaimed}M</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Food Deserts</span>
+                        <span class="metric-value">${county1.deserts}%</span>
+                    </div>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3 style="color: var(--primary); margin-bottom: 20px;">${county2.icon} ${county2.name}</h3>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Production Value</span>
+                        <span class="metric-value">$${county2.production}B</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Farm Workers</span>
+                        <span class="metric-value">${county2.workers.toLocaleString()}</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Agricultural Wage</span>
+                        <span class="metric-value">$${county2.wage}/hr</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Food Service Wage</span>
+                        <span class="metric-value">$${county2.foodServiceWage}/hr</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Unclaimed Benefits</span>
+                        <span class="metric-value" style="color: var(--danger);">$${county2.unclaimed}M</span>
+                    </div>
+                    <div class="comparison-metric">
+                        <span class="metric-label">Food Deserts</span>
+                        <span class="metric-value">${county2.deserts}%</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculate Economic Impact
+        function calculateImpact() {
+            const investment = parseFloat(document.getElementById('investmentAmount').value);
+            const jobs = parseInt(document.getElementById('jobsCreated').value);
+            
+            // Multipliers from the report
+            const outputMultiplier = 1.42;
+            const jobMultiplier = 1.33;
+            const incomeMultiplier = 1.32;
+            
+            const totalOutput = investment * outputMultiplier;
+            const totalJobs = jobs * jobMultiplier;
+            const directIncome = jobs * 40000; // Average wage
+            const totalIncome = directIncome * incomeMultiplier;
+            const taxRevenue = totalIncome * 0.25; // Approx tax rate
+            
+            const resultEl = document.getElementById('calcResult');
+            resultEl.style.display = 'grid';
+            resultEl.innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Total Economic Output</div>
+                    <div class="result-value">$${(totalOutput/1000000).toFixed(2)}M</div>
+                    <small style="color: var(--gray);">Direct + Multiplier Effects</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total Jobs Created</div>
+                    <div class="result-value">${Math.round(totalJobs)}</div>
+                    <small style="color: var(--gray);">Direct + Indirect + Induced</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total Labor Income</div>
+                    <div class="result-value">$${(totalIncome/1000000).toFixed(2)}M</div>
+                    <small style="color: var(--gray);">Annual wages generated</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Tax Revenue</div>
+                    <div class="result-value">$${(taxRevenue/1000000).toFixed(2)}M</div>
+                    <small style="color: var(--gray);">All government levels</small>
+                </div>
+            `;
+            
+            resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Data Explorer
+        const explorerDataSets = {
+            'economic': [
+                { label: 'GDP Contribution', value: '$24.1B', change: '+14.9%', positive: true },
+                { label: 'Total Output', value: '$43.7B', change: '+42%', positive: true },
+                { label: 'Labor Income', value: '$14.5B', change: '+32%', positive: true },
+                { label: 'Tax Revenue', value: '$5.75B', change: 'All Levels', positive: true }
+            ],
+            'employment': [
+                { label: 'Direct Jobs', value: '206,465', change: '75% of total', positive: true },
+                { label: 'Indirect Jobs', value: '38,544', change: '14% of total', positive: true },
+                { label: 'Induced Jobs', value: '28,908', change: '11% of total', positive: true },
+                { label: 'Total Employment', value: '273,917', change: 'All sectors', positive: true }
+            ],
+            'food-security': [
+                { label: 'Food Stamp Participants', value: '147,584', change: '+62% since 2019', positive: false },
+                { label: 'Unclaimed Benefits', value: '$271M', change: '71,528 households', positive: false },
+                { label: 'Food Deserts (Avg)', value: '10.8%', change: 'Census tracts', positive: false },
+                { label: 'National Food Insecure', value: '13.5%', change: '18M households', positive: false }
+            ],
+            'wages': [
+                { label: 'Food Service Median', value: '$17.22/hr', change: 'Central Coast avg', positive: true },
+                { label: 'Agricultural Median', value: '$17.78/hr', change: 'Central Coast avg', positive: true },
+                { label: 'U.S.-Born Workers', value: '$31/hr', change: 'Documented', positive: true },
+                { label: 'Undocumented Workers', value: '$14/hr', change: '100% wage gap', positive: false }
+            ],
+            'environment': [
+                { label: 'Pesticides Applied', value: '215M lbs', change: 'Annually', positive: false },
+                { label: 'Organic Farms', value: '4.8%', change: 'Of all farms', positive: true },
+                { label: 'Organic Value Share', value: '6.3%', change: 'Flat since 2017', positive: false },
+                { label: 'Almond Organic', value: '2%', change: 'Major crop', positive: false }
+            ]
+        };
+
+        function showExplorerData(category) {
+            // Update button states
+            document.querySelectorAll('.explorer-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const data = explorerDataSets[category];
+            const gridEl = document.getElementById('explorerData');
+            
+            gridEl.innerHTML = data.map(item => `
+                <div class="data-point">
+                    <div class="data-point-label">${item.label}</div>
+                    <div class="data-point-value">${item.value}</div>
+                    <div class="data-point-change ${item.positive ? 'change-positive' : 'change-negative'}">
+                        ${item.change}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Scroll Progress
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scrollProgress').style.width = scrolled + '%';
+            
+            // Show/hide back to top button
+            const backToTop = document.getElementById('backToTop');
+            if (winScroll > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        updateComparison();
+        showExplorerData('economic');
+
+        console.log('🌾 Enhanced Interactive Dashboard Loaded');
+        console.log('📊 Features: County Explorer, Comparison Tool, Impact Calculator, Timeline');
+    </script>
+</body>
+</html>
